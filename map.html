@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>JKey_SUR5365_HW8</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+    />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+
+    <style type="text/css">
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+      }
+      #map1,
+      #map2 {
+        width: 50%;
+        height: 100%;
+      }
+      #map1 {
+        float: left;
+      }
+      #map2 {
+        float: right;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map1"></div>
+    <div id="map2"></div>
+
+    <script type="text/javascript">
+      var center = [29.65, -82.35];
+      var Rect,
+        num = 0;
+
+      var layer1 = L.tileLayer(
+        "https://api.mapbox.com/styles/v1/jkey27/ckvh0clzv0tbm14rubktxdphw/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiamtleTI3IiwiYSI6ImNrcnh0ODIxcTAxeXQybm9lcmgxajNocjkifQ.B-EN84OLnIDPGbuGVRyzbA",
+        {
+          attribution:
+            '&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> contributors',
+        }
+      );
+
+      var layer2 = L.tileLayer(
+        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        {
+          attribution:
+            '&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> contributors',
+        }
+      );
+
+      var map1 = L.map("map1", {
+        layers: [layer1],
+        center: center,
+        zoom: 14,
+      });
+
+      var map2 = L.map("map2", {
+        layers: [layer2],
+        center: center,
+        zoom: 17,
+      });
+      map1.on("mousemove", function () {
+        map2.setView(map1.getCenter());
+        DrawRect();
+      });
+
+      map1.on("zoomend", function () {
+        map2.setView(map1.getCenter(), map1.getZoom() + 3);
+      });
+
+      map2.on("mousemove", function () {
+        var ZoomValue2 = [map2.getCenter().lat, map2.getCenter().lng];
+        map1.setView(map2.getCenter());
+        DrawRect();
+      });
+
+      map2.on("zoomend", function () {
+        map1.setView(map2.getCenter(), map2.getZoom() - 3);
+      });
+
+      map1.on("click", function (ev) {
+        L.marker(ev.latlng)
+          .addTo(map1)
+          .bindPopup(
+            `<b>Lat:</b>${ev.latlng.wrap().lat}<br><b>Lon:${
+              ev.latlng.wrap().lng
+            }</b>`
+          );
+        L.marker(ev.latlng)
+          .addTo(map2)
+          .bindPopup(
+            `<b>Lat:</b>${ev.latlng.wrap().lat}<br><b>Lon:${
+              ev.latlng.wrap().lng
+            }</b>`
+          );
+      });
+      function DrawRect() {
+        if (num++) {
+          map1.removeLayer(Rect);
+        }
+        Rect = L.rectangle(map2.getBounds(), { color: "red", weight: 1 });
+        map1.addLayer(Rect);
+      }
+    </script>
+  </body>
+</html>
